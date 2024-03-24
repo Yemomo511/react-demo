@@ -1,0 +1,9 @@
+{
+  "name": "react-reconciler",
+  "version": "1.0.0",
+  "description": "React 调度器, 负责启动render和commit阶段",
+  "module": "index.ts",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
