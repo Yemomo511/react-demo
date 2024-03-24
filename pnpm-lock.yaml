@@ -61,7 +61,7 @@ importers:
         specifier: ^5.4.3
         version: 5.4.3
 
-  packages/react:
+  packages/React:
     dependencies:
       shared:
         specifier: workspace:*

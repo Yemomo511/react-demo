@@ -45,7 +45,9 @@ export default [
     ],
   },
   {
-    input: `${inputBath}/${module}`,
+    //参考https://babeljs.io/docs/babel-plugin-transform-react-jsx
+    //遵循官方定义定义jsx
+    input: `${inputBath}/src/jsx.ts`,
     output: [
       //jsx-runtime
       {
