@@ -1,6 +1,6 @@
 {
     "env": {
-        "browser": true,
+        "node": true,
         "es2021": true
     },
     "extends": [
@@ -19,9 +19,13 @@
         "prettier"//规则合集
     ],
     "rules": {
-        "prettier/prettier":"warn",
+        "prettier/prettier":[
+        "warn",{
+        
+        }],
         "no-case-declarations":"off",
         "no-constant-condition":"off",
+        "@typescript-eslint/no-explicit-any":"off",
         "@typescript-eslint/ban-ts-comment":"off",
 
         "@typescript-eslint/no-unused-vars":[

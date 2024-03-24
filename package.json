@@ -2,10 +2,8 @@
   "name": "react-demo",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "build": "babel ./src -w --out-file ./build/index.js",
-    "start": "npm run build -w",
+    "build:dev": " rimraf ./dist & rollup --bundleConfigAsCjs --config scripts/rollup/react.config.js",
     "lint": "eslint --ext .ts,.jsx,.tsx,.js --fix --quiet ./packages",
     "prepare": "husky"
   },
@@ -16,16 +14,21 @@
     "@babel/cli": "^7.24.1",
     "@babel/core": "^7.24.3",
     "@babel/preset-env": "^7.24.3",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
     "@typescript-eslint/parser": "^7.3.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
     "prettier": "^3.2.5",
+    "rollup-plugin-typescript2": "^0.36.0",
     "typescript": "^5.4.3"
   },
   "dependencies": {
     "husky": "^9.0.11",
-    "rollup": "^4.13.0"
+    "rimraf": "^5.0.5",
+    "rollup": "^4.13.0",
+    "rollup-plugin-generate-package-json": "^3.2.0"
   }
 }
