@@ -12,3 +12,7 @@ export interface ReactElementType {
   key: Key;
   __mark: string;
 }
+
+//Action要不是修改state，要不是值
+//setState(3) setState((state)=>{ state = 3}) 可以看出这个设计思想
+export type Action<State> = State | ((preState:State)=>State)

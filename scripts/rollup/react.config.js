@@ -28,7 +28,6 @@ export default [
     },
     plugins: [
       ...getCommonPlugin(),
-      //导出package.json说明包的一些信息，且这是个包
       generatePackageJson({
         inputFolder: inputBath,
         outputFolder: outputBath,

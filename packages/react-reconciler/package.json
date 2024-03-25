@@ -5,5 +5,8 @@
   "module": "index.ts",
   "keywords": [],
   "author": "",
+  "dependencies": {
+    "shared": "workspace: *"
+  },
   "license": "ISC"
 }

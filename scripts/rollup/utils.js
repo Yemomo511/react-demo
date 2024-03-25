@@ -2,9 +2,8 @@ import path from "path";
 import fs from "fs";
 import typescript from "@rollup/plugin-typescript";
 import commonJS from "@rollup/plugin-commonjs";
-import ts from "rollup-plugin-typescript2"
-import packagejson from "rollup-plugin-generate-package-json"
-
+import ts from "rollup-plugin-typescript2";
+import replace from "@rollup/plugin-replace";
 const packagePath = path.resolve(__dirname, "../../packages");
 const distPath = path.resolve(__dirname, "../../dist/node_modules");
 
@@ -26,6 +25,17 @@ export function getPackageJson(pck) {
 }
 
 //返回一个plugin数组，方便使用
-export function getCommonPlugin({ typescriptConfig = {} } = {}) {
-  return [commonJS(), ts(typescriptConfig)];
+export function getCommonPlugin({
+  typescriptConfig = {},
+  inputBath = "",
+  outputBath = "",
+} = {}) {
+  return [
+    commonJS(),
+    ts(typescriptConfig),
+    replace({
+      __DEV__: true,
+    }),
+    //导出package.json说明包的一些信息，且这是个包
+  ];
 }

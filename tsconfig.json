@@ -15,6 +15,9 @@
         "skipLibCheck": false, // 跳过所有的声明文件（.d.ts）的类型检查
         "baseUrl": "./packages",//开发包，路径在packages下，packages下面有多个包
         "noImplicitAny": true, // 不允许隐式的any类型
+        "paths":{//路径映射,可以在import时使用别名
+            "hostConfig":["./packages/react-reconciler/src/hostConfig.ts"] // 宿主环境
+        }
     },
     "include": [ "**/*.ts" ],
 }
