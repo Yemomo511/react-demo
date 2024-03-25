@@ -8,6 +8,7 @@ import { Placement } from "./fiberFlags";
 import { HostText } from "./fiberTag";
 
 //shouldTrackEffects会决定是update还是mount
+//TODO: 根据current进行复用渲染，可以使用diff算法
 export function ChildReconciler(shouldTrackEffects: boolean) {
   //闭包策略
 
@@ -37,6 +38,23 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
       null,
     );
     fiber.return = returnFiber;
+    return fiber;
+  }
+
+  //渲染多child
+  function reconcilerMultiChildren(
+    returnFiber: FiberNode,
+    currentFiber: FiberNode | null,
+    childArray: Array<any>,
+  ) {
+    //PS:  child有可能多种类型,这里也需要进行判断对不同的child进行处理
+    let fiber = createFiberWithReactElement(childArray[0]);
+    fiber.return = returnFiber;
+    for (let index = 1; index < childArray.length; index++) {
+      placeSingleChild(fiber);
+      fiber.sibling = createFiberWithReactElement(childArray[index]);
+      fiber = fiber.sibling;
+    }
     return fiber;
   }
 
@@ -71,6 +89,16 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
     if (typeof childElement == "string" || typeof childElement == "number") {
       return placeSingleChild(
         reconcilerSingleTextNode(workInProgress, currentFiber, childElement),
+      );
+    }
+
+    if (typeof childElement == "object" && Array.isArray(childElement)) {
+      if (childElement.length == 0) {
+        return null;
+      }
+
+      return placeSingleChild(
+        reconcilerMultiChildren(workInProgress, currentFiber, childElement),
       );
     }
 

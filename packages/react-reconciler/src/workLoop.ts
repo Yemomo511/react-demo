@@ -14,9 +14,9 @@ import { FiberRootNode } from "./fiberRoot";
 //全局变量，所有函数都能用
 let workInProgress: FiberNode | null;
 
-const prepareFreshStack = (fiber: FiberRootNode) => {
+const prepareFreshStack = (root: FiberRootNode) => {
   //用于将当前DFS遍历的位置赋值给workInProgess指针
-  workInProgress = createWorkInProgress(fiber.current, null);
+  workInProgress = createWorkInProgress(root.current, null);
 };
 
 export const createFiberWithReactElement = (

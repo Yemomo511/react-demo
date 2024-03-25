@@ -68,6 +68,12 @@ export class FiberNode {
 //创建工作树，然后交给render和commit，分别制造子节点和进行更新字段
 //请参考https://kasong.gitee.io/just-react/process/doubleBuffer.html#%E4%BB%80%E4%B9%88%E6%98%AF-%E5%8F%8C%E7%BC%93%E5%AD%98
 export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
+  // PINK: 通过current.alternate判断
+  // 过程: 1. 首次渲染时，只有一个RootFiber ,只能手工制造一个RootFiber，并使用alternate进行根绑定
+  // 然后: 2. 更新时，由于上次的alternate没有解绑，代表至少完成过mount，即现在是update阶段，判断alternate是否存在，存在的话
+  //         第二次构建的 workInprogress 的 rootFiber 复用部分 上一次的current, 并初始化一些操作
+  //         例如副作用清空，传入新的props准备diff，然后交给render 走 DFS 构建剩下的 Fiber
+  //
   //获取是否alternate，如果有update没有为mount首屏渲染
   let wip = current.alternate;
   if (wip == null) {
@@ -75,7 +81,7 @@ export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
     // wip.flags = null
   } else {
     //update 初始化一下wip
-    wip.pendingProps = pendingProps
+    wip.pendingProps = pendingProps;
     wip.flags = NoFlags;
     wip.subtreeFlags = NoFlags;
   }
