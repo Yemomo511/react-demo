@@ -6,6 +6,7 @@ import { createFiberWithReactElement } from "./workLoop";
 import { REACT_ELEMENT_TYPE } from "shared/ReactSymbol";
 import { Placement } from "./fiberFlags";
 import { HostText } from "./fiberTag";
+import { isArray } from "lodash";
 
 //shouldTrackEffects会决定是update还是mount
 //TODO: 根据current进行复用渲染，可以使用diff算法
@@ -48,12 +49,13 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
     childArray: Array<any>,
   ) {
     //PS:  child有可能多种类型,这里也需要进行判断对不同的child进行处理
-    let fiber = createFiberWithReactElement(childArray[0]);
+    const fiber = createFiberWithReactElement(childArray[0]);
+    let siblingFiber = fiber;
     fiber.return = returnFiber;
     for (let index = 1; index < childArray.length; index++) {
       placeSingleChild(fiber);
-      fiber.sibling = createFiberWithReactElement(childArray[index]);
-      fiber = fiber.sibling;
+      siblingFiber.sibling = createFiberWithReactElement(childArray[index]);
+      siblingFiber = siblingFiber.sibling;
     }
     return fiber;
   }
@@ -73,7 +75,13 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
     childElement: ReactElementType,
   ) {
     //TODO 其他类型的实现
-    if (typeof childElement == "object" && childElement != null) {
+    console.log(childElement);
+    if (
+      typeof childElement == "object" &&
+      childElement != null &&
+      Array.isArray(childElement) == false
+    ) {
+      console.log(childElement.$$typeof);
       if (childElement.$$typeof == REACT_ELEMENT_TYPE) {
         return placeSingleChild(
           reconcilerSingleElement(workInProgress, currentFiber, childElement),

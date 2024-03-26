@@ -97,7 +97,8 @@ function workLoop() {
   }
 }
 
-function performUnitOfWork(fiber: FiberNode) {
+export function performUnitOfWork(fiber: FiberNode) {
+  console.log(fiber)
   //DFS分为三步，先递，再归
   //next 子节点， fiber当前节点
 
@@ -105,6 +106,7 @@ function performUnitOfWork(fiber: FiberNode) {
 
   //设计思想：1.先一直往下走
   const next = beginWork(fiber);
+  console.log(next)
   //Q:为什么要这样设计？
   fiber.memorizedProps = fiber.pendingProps;
 

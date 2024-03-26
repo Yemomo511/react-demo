@@ -76,7 +76,7 @@ export function updateHostComponent(wip: FiberNode) {
   //区分好！！！别弄混
   //wip.child 是子fiber 他的子ReactElement在props上面的child , jsx转化的时候就这么处理
   const nextProps = wip.pendingProps;
-  const nextChild = nextProps.child;
+  const nextChild = nextProps.children;
   reconcilerChildren(wip, nextChild);
   return wip.child;
 }

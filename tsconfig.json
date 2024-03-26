@@ -18,7 +18,10 @@
         "noImplicitAny": true, // 不允许隐式的any类型
         "paths":{//路径映射,可以在import时使用别名
             "hostConfig":["./packages/react-reconciler/src/hostConfig.ts"] // 宿主环境
-        }
+        },
+        "jsx": "react",
     },
-    "include": [ "**/*.ts", "webpack.config.ts", "demo/index.tsx" ],
+    "include": [ "**/*.ts"],
+    "exclude": ["demo"]
+    
 }
