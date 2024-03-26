@@ -5,9 +5,10 @@
         "module": "ESNext",
         "strict": true,
         "sourceMap": true,
-        "moduleResolution": "Node",
+        "moduleResolution": "node",
         "resolveJsonModule": true,
         "isolatedModules": true, // 保证每个文件都是独立的模块
+        "allowSyntheticDefaultImports": true,     
         "esModuleInterop":  true, // 保证默认导入和导出的行为与 Babel 和 TypeScript 之间的行为一致
         "noEmit": true, // 不生成输出文件
         "noUnusedLocals": false, // 禁止声明未使用的局部变量
@@ -19,5 +20,5 @@
             "hostConfig":["./packages/react-reconciler/src/hostConfig.ts"] // 宿主环境
         }
     },
-    "include": [ "**/*.ts" ],
+    "include": [ "**/*.ts", "webpack.config.ts", "demo/index.tsx" ],
 }

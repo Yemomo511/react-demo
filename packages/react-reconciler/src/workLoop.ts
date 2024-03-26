@@ -48,7 +48,7 @@ export function Schedule(updateNode: FiberNode) {
 
 export function markUpdateFromFiberToRoot(
   fiber: FiberNode,
-): FiberRootNode | null {
+): FiberRootNode {
   let node = fiber;
   let parent = fiber.return;
   while (parent != null) {
@@ -60,7 +60,7 @@ export function markUpdateFromFiberToRoot(
     return node.stateNode;
   } else {
     //Error: 存在问题
-    return null;
+    return node.stateNode;
   }
 }
 
