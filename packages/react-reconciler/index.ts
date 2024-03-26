@@ -1,3 +1,5 @@
-export const DeBugHello = () => {
-  console.log("hello world");
+import { createFiberWithReactElement } from "./src/workLoop";
+
+export default {
+  createFiberWithReactElement,
 };

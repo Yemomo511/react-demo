@@ -6,7 +6,8 @@
   "keywords": [],
   "author": "",
   "dependencies": {
-    "shared":"workspace:*"
+    "shared":"workspace:*",
+    "react-reconciler":"workspace:*"
   },
   "license": "ISC"
 }
