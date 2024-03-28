@@ -61,6 +61,7 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
   }
 
   // plugin
+  //mount时只会在rootFiber存在Placement effectTag
   function placeSingleChild(fiber: FiberNode) {
     //TODO :处理完后的plugin
     if (shouldTrackEffects && fiber.alternate == null) {

@@ -106,7 +106,6 @@ export function performUnitOfWork(fiber: FiberNode) {
 
   //设计思想：1.先一直往下走
   const next = beginWork(fiber);
-  console.log(next)
   //Q:为什么要这样设计？
   fiber.memorizedProps = fiber.pendingProps;
 
@@ -124,7 +123,7 @@ function completeUnitWork(fiber: FiberNode) {
   let node: FiberNode | null;
   node = fiber;
   do {
-    //归阶段想完成的事情,指针同步更改
+    //归阶段想完成的事情,指针同步更改,不需要对wip进行递归，这是处理文件
     completeWork(node);
     if (node.sibling) {
       workInProgress = node.sibling;
