@@ -7,7 +7,7 @@ import {
   HostRoot,
   HostText,
 } from "./fiberTag";
-import { appendInitialChild, createInstance } from "./hostConfig";
+import { Container, Instance, appendInitialChild, createInstance } from "hostConfig";
 
 //completeWork的设计理念请参考https://kasong.gitee.io/just-react/process/completeWork.html
 
@@ -26,7 +26,7 @@ export const completeWork = (wip: FiberNode) => {
       } else {
         const instance = createInstance(wip.type, newProps);
 
-        appendAllChildren(instance,wip);
+        appendAllChildren(instance, wip);
         wip.stateNode = instance;
       }
       bubbleProperties(wip);
@@ -45,9 +45,9 @@ export const completeWork = (wip: FiberNode) => {
         const instance = createInstance(wip.type, newProps);
         //2. 将dom 插入到当前的 dom树中
         appendAllChildren(instance, wip);
-        //事件冒泡,将子事件的flags冒泡到父组件上
         wip.stateNode = instance;
       }
+      //事件冒泡,将子事件的flags冒泡到父组件上
       bubbleProperties(wip);
       return null;
     default:
@@ -82,12 +82,13 @@ const bubbleProperties = (wip: FiberNode) => {
  */
 
 //parent当前的DOM节点
-function appendAllChildren(parent: any, wip: FiberNode) {
+//Study: 这个函数逻辑很优秀
+function appendAllChildren(parent: Container | Instance, wip: FiberNode) {
   let node = wip.child;
   while (node != null) {
     //对于 HostComponent 和 HostText 在归过程中stateNode一直更新，因此不需要找其child，因为已经通过归阶段一步步放到
     //顶部节点了
-    //而对于子节点非
+    //而对于子节点非HostComponent就递归往下找，如果找到HostComponent，再冒泡往上走，并每次走的时候都把sibling都处理好return绑定到children的return
     if (node.tag == HostComponent || node.tag == HostText) {
       appendInitialChild(parent, node.stateNode);
     } else if (node.child != null) {
@@ -109,5 +110,5 @@ function appendAllChildren(parent: any, wip: FiberNode) {
     }
     node.sibling.return = node.return;
     node = node.sibling;
-  } 
+  }
 }

@@ -22,11 +22,11 @@ export class FiberNode {
 
   //update的标注
   subtreeFlags: Flags;
-  flags: Flags ;
+  flags: Flags;
   memorizedProps: Props;
   memorizedState: any; // memorizedState有很多情况
   alternate: FiberNode | null;
-  //TODO: 后期再实现 
+  //TODO: 后期再实现
   //参考https://kasong.gitee.io/just-react/state/update.html#updatequeue
   updateQueue: unknown;
 
@@ -85,6 +85,7 @@ export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
     wip.flags = NoFlags;
     wip.subtreeFlags = NoFlags;
   }
+  //相当于把current复制给wip了
   wip.type = current.type;
   wip.key = current.key;
   wip.stateNode = current.stateNode;
@@ -93,8 +94,8 @@ export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
   wip.child = current.child;
   wip.index = current.index;
 
-  //保险起见，绑定一下
+  //初始化后，重新绑定，上次的alternate被废除
   wip.alternate = current;
   current.alternate = wip;
-  return wip
+  return wip;
 }

@@ -10,6 +10,8 @@ import { FiberNode, createWorkInProgress } from "./fiber";
 import { FunctionComponent, HostComponent, HostRoot } from "./fiberTag";
 import { Update } from "./updateQueue";
 import { FiberRootNode } from "./fiberRoot";
+import { NoFlags } from "./fiberFlags";
+import { beforeMutationCommit, commitMutationEffects } from "./commitWork";
 
 //全局变量，所有函数都能用
 let workInProgress: FiberNode | null;
@@ -46,9 +48,7 @@ export function Schedule(updateNode: FiberNode) {
   renderRoot(root);
 }
 
-export function markUpdateFromFiberToRoot(
-  fiber: FiberNode,
-): FiberRootNode {
+export function markUpdateFromFiberToRoot(fiber: FiberNode): FiberRootNode {
   let node = fiber;
   let parent = fiber.return;
   while (parent != null) {
@@ -81,6 +81,7 @@ const renderRoot = (fiberRoot: FiberRootNode) => {
   } while (true);
 
   //处理完后给与finnishWork，准备好渲染
+  //fiberRoot.current.alternate 为本次构建的wip
   const finishedWork = fiberRoot.current.alternate;
   fiberRoot.finishedWork = finishedWork;
 
@@ -98,7 +99,7 @@ function workLoop() {
 }
 
 export function performUnitOfWork(fiber: FiberNode) {
-  console.log(fiber)
+  console.log(fiber);
   //DFS分为三步，先递，再归
   //next 子节点， fiber当前节点
 
@@ -138,4 +139,38 @@ function completeUnitWork(fiber: FiberNode) {
 }
 
 //commit阶段
-export function commitRoot(fiberRoot: FiberRootNode) {}
+export function commitRoot(fiberRoot: FiberRootNode) {
+  //fiberRoot.finishWork 为 render阶段的wip
+  const finishedWork = fiberRoot.finishedWork;
+  if (finishedWork == null) {
+    return;
+  }
+  if (__DEV__) {
+    console.warn("开始commit阶段");
+  }
+  /**
+   * commit 三个阶段
+   * before mutation
+   * mutation
+   * layout
+   */
+
+  //before mutation之前 完成一些属性的提取和重置，
+  fiberRoot.finishedWork == null;
+  //判断副作用,由于flags冒泡，所有flags已经冒泡到顶部
+  const isHasSubFlags = finishedWork.subtreeFlags !== NoFlags;
+  const isHasFlags = finishedWork.flags !== NoFlags;
+
+  if (isHasFlags && isHasFlags) {
+    //开启commit的三个阶段
+
+    //第一阶段
+    beforeMutationCommit();
+    commitMutationEffects(finishedWork);
+  } else {
+    //layout,切换到wip
+    fiberRoot.current = finishedWork;
+  }
+}
+
+//https://react.iamkasong.com/renderer/beforeMutation.html#%E6%A6%82%E8%A7%88

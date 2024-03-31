@@ -1,5 +1,5 @@
 import { FiberNode } from "./fiber";
-import { Container } from "./hostConfig";
+import { Container } from "../../react-dom/src/hostConfig";
 
 /**
  *

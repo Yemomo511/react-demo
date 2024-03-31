@@ -12,12 +12,13 @@
         "esModuleInterop":  true, // 保证默认导入和导出的行为与 Babel 和 TypeScript 之间的行为一致
         "noEmit": true, // 不生成输出文件
         "noUnusedLocals": false, // 禁止声明未使用的局部变量
+        "noUnusedParameters": false, // 禁止声明未使用的参数,
         "noImplicitReturns": true, // 函数有返回值时必须有返回值
         "skipLibCheck": false, // 跳过所有的声明文件（.d.ts）的类型检查
         "baseUrl": "./packages",//开发包，路径在packages下，packages下面有多个包
         "noImplicitAny": true, // 不允许隐式的any类型
         "paths":{//路径映射,可以在import时使用别名
-            "hostConfig":["./packages/react-reconciler/src/hostConfig.ts"] // 宿主环境
+            "hostConfig":["./react-dom/src/hostConfig.ts"] // 宿主环境
         },
         "jsx": "react",
     },

@@ -24,3 +24,4 @@ export const Placement = /*                    */ 0b00000010;
 export const Update = /*                       */ 0b00000100;
 export const PlacementAndUpdate = /*           */ 0b00001000;
 export const Deletion = /*                     */ 0b00010000;
+export const MutationMask = Placement | Update | Deletion;
