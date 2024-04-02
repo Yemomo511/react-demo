@@ -12,6 +12,7 @@ import { mountReconcilerChild, updateReconcilerChild } from "./childFiber";
 
 //begin的所有阶段请参考https://kasong.gitee.io/just-react/process/beginWork.html#effecttag
 export const beginWork = (wip: FiberNode) => {
+   //最后要返回子节点
   //初始化等
   //1.判断是否可以复用，待实现
 
@@ -36,7 +37,7 @@ export const beginWork = (wip: FiberNode) => {
       break;
   }
 
-  //最后要返回子节点
+ 
   return null;
 };
 /**
@@ -68,7 +69,7 @@ export function updateHostRoot(wip: FiberNode) {
   reconcilerChildren(wip, nextChild);
 
   //准备更新
-
+  console.log(wip.child)
   return wip.child;
 }
 

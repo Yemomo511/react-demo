@@ -7,7 +7,12 @@ import {
   HostRoot,
   HostText,
 } from "./fiberTag";
-import { Container, Instance, appendInitialChild, createInstance } from "hostConfig";
+import {
+  Container,
+  Instance,
+  appendInitialChild,
+  createInstance,
+} from "hostConfig";
 
 //completeWork的设计理念请参考https://kasong.gitee.io/just-react/process/completeWork.html
 
@@ -30,7 +35,7 @@ export const completeWork = (wip: FiberNode) => {
         wip.stateNode = instance;
       }
       bubbleProperties(wip);
-      return null;
+      return;
     case HostComponent:
       //判断是否存在dom
       /**
@@ -49,14 +54,14 @@ export const completeWork = (wip: FiberNode) => {
       }
       //事件冒泡,将子事件的flags冒泡到父组件上
       bubbleProperties(wip);
-      return null;
+      return;
     default:
       if (__DEV__) {
         console.error("未知的tag类型", wip.tag);
       }
       break;
-      return;
   }
+  return;
 };
 
 const bubbleProperties = (wip: FiberNode) => {

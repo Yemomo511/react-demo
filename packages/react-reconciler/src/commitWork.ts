@@ -1,11 +1,14 @@
-import { Container } from "hostConfig";
+import { Container, appendChildToContainer } from "hostConfig";
 import { FiberNode } from "./fiber";
 import { MutationMask, NoFlags, Placement } from "./fiberFlags";
-import { HostComponent, HostRoot } from "./fiberTag";
+import { HostComponent, HostRoot, HostText } from "./fiberTag";
 import { FiberRootNode } from "./fiberRoot";
 
-export const beforeMutationCommit = () => {};
 let nextEffect: FiberNode | null = null;
+
+export const beforeMutationCommit = () => {};
+
+
 
 export const commitMutationEffects = (finishedWork: FiberNode) => {
   nextEffect = finishedWork;
@@ -46,6 +49,7 @@ const handlePlacementFlag = (finishedFiber: FiberNode) => {
   if (__DEV__) {
     console.log("handle placement flag");
   }
+  //获取父container，将节点放进container
   const hostParent = getHostParent(finishedFiber);
   if (hostParent != null) {
     appendPlacementNodeInContainer(finishedFiber, hostParent);
@@ -76,4 +80,18 @@ const appendPlacementNodeInContainer = (
   parent: Container,
 ) => {
   //TODO: 递归处理，因为冒泡，所以需要递归添加
+  const tag = finishedFiber.tag;
+  if (tag == HostComponent || tag === HostText) {
+    appendChildToContainer(parent, finishedFiber.stateNode);
+    return;
+  }
+  const child = finishedFiber.child;
+  if (child!=null){
+    appendPlacementNodeInContainer(child, parent);
+    let sibling = child.sibling;
+    while (sibling !== null){
+      appendPlacementNodeInContainer(sibling, parent);
+      sibling = sibling.sibling;
+    }
+  }
 };

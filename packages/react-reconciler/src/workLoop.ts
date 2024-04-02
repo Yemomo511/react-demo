@@ -42,15 +42,15 @@ export const createFiberWithReactElement = (
 };
 
 //Schedule模块
-export function Schedule(updateNode: FiberNode) {
+export function ScheduleUpdateOnFiber(updateNode: FiberNode) {
   //调度更新的一些处理
   const root = markUpdateFromFiberToRoot(updateNode);
   renderRoot(root);
 }
 
-export function markUpdateFromFiberToRoot(fiber: FiberNode): FiberRootNode {
+export function markUpdateFromFiberToRoot(fiber: FiberNode) {
   let node = fiber;
-  let parent = fiber.return;
+  let parent = node.return;
   while (parent != null) {
     node = parent;
     parent = node.return;
@@ -60,12 +60,13 @@ export function markUpdateFromFiberToRoot(fiber: FiberNode): FiberRootNode {
     return node.stateNode;
   } else {
     //Error: 存在问题
-    return node.stateNode;
+    console.error("未找到RootFiberNode");
+    return null;
   }
 }
 
 //入口
-const renderRoot = (fiberRoot: FiberRootNode) => {
+export const renderRoot = (fiberRoot: FiberRootNode) => {
   //一些预先处理,创建workInProgress
   prepareFreshStack(fiberRoot);
   do {
@@ -95,6 +96,7 @@ function workLoop() {
   //DFS结束条件为指针为空结束
   while (workInProgress != null) {
     performUnitOfWork(workInProgress);
+
   }
 }
 
