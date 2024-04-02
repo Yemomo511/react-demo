@@ -2,7 +2,7 @@
 
 import { ReactElementType } from "shared/ReactElementTypes";
 import { FiberNode } from "./fiber";
-import { createFiberWithReactElement } from "./workLoop";
+import { createFiberWithReactElement } from "./fiber";
 import { REACT_ELEMENT_TYPE } from "shared/ReactSymbol";
 import { Placement } from "./fiberFlags";
 import { HostText } from "./fiberTag";
@@ -48,22 +48,25 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
     currentFiber: FiberNode | null,
     childArray: Array<any>,
   ) {
-    //PS:  child有可能多种类型,这里也需要进行判断对不同的child进行处理
+    //TODO:  child有可能多种类型,这里也需要进行判断对不同的child进行处理
     const fiber = createFiberWithReactElement(childArray[0]);
     let siblingFiber = fiber;
     fiber.return = returnFiber;
+    placeSingleChild(fiber);
     for (let index = 1; index < childArray.length; index++) {
-      placeSingleChild(fiber);
       siblingFiber.sibling = createFiberWithReactElement(childArray[index]);
+      siblingFiber.sibling.return = returnFiber;
+      placeSingleChild(siblingFiber.sibling);
       siblingFiber = siblingFiber.sibling;
     }
     return fiber;
   }
 
   // plugin
-  //mount时只会在rootFiber存在Placement effectTag
+  // mount时只会在rootFiber存在Placement effectTag
   function placeSingleChild(fiber: FiberNode) {
     //TODO :处理完后的plugin
+    // console.log(fiber.flags, fiber.type);
     if (shouldTrackEffects && fiber.alternate == null) {
       fiber.flags |= Placement;
     }
@@ -73,16 +76,15 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
   return function reconcileChildFibers(
     workInProgress: FiberNode,
     currentFiber: FiberNode | null,
-    childElement: ReactElementType,
+    childElement: ReactElementType | string | number,
   ) {
     //TODO 其他类型的实现
-    console.log(childElement);
+    console.log("childElement", childElement);
     if (
       typeof childElement == "object" &&
       childElement != null &&
       Array.isArray(childElement) == false
     ) {
-      console.log(childElement.$$typeof);
       if (childElement.$$typeof == REACT_ELEMENT_TYPE) {
         return placeSingleChild(
           reconcilerSingleElement(workInProgress, currentFiber, childElement),
@@ -106,9 +108,7 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
         return null;
       }
 
-      return placeSingleChild(
-        reconcilerMultiChildren(workInProgress, currentFiber, childElement),
-      );
+      return reconcilerMultiChildren(workInProgress, currentFiber, childElement)
     }
 
     if (__DEV__) {

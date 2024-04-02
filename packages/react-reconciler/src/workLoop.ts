@@ -21,25 +21,7 @@ const prepareFreshStack = (root: FiberRootNode) => {
   workInProgress = createWorkInProgress(root.current, null);
 };
 
-export const createFiberWithReactElement = (
-  reactElement: ReactElementType,
-): FiberNode => {
-  const { type, props, key, ref } = reactElement;
-  const fiber = new FiberNode(HostComponent, props, key);
-  if (typeof type === "string") {
-    fiber.tag = HostComponent;
-  } else if (typeof type === "function") {
-    fiber.tag = FunctionComponent;
-  } else {
-    if (__DEV__) {
-      console.error("未知定义的type类型", reactElement);
-    }
-  }
-  fiber.type = type;
-  fiber.key = key;
-  fiber.ref = ref;
-  return fiber;
-};
+
 
 //Schedule模块
 export function ScheduleUpdateOnFiber(updateNode: FiberNode) {
@@ -77,7 +59,9 @@ export const renderRoot = (fiberRoot: FiberRootNode) => {
       //异常处理一下
       if (__DEV__) {
         console.warn("render Current: workLoop interupt", e);
+        return;
       }
+      break;
     }
   } while (true);
 
@@ -96,17 +80,14 @@ function workLoop() {
   //DFS结束条件为指针为空结束
   while (workInProgress != null) {
     performUnitOfWork(workInProgress);
-
   }
+  return;
 }
 
 export function performUnitOfWork(fiber: FiberNode) {
-  console.log(fiber);
   //DFS分为三步，先递，再归
   //next 子节点， fiber当前节点
-
   //next 会一直往下找 直到为null ，然后网上弹，如果有sibling，workInprogress为子节点，又走递归
-
   //设计思想：1.先一直往下走
   const next = beginWork(fiber);
   //Q:为什么要这样设计？
@@ -126,6 +107,7 @@ function completeUnitWork(fiber: FiberNode) {
   let node: FiberNode | null;
   node = fiber;
   do {
+    console.log("complete",node)
     //归阶段想完成的事情,指针同步更改,不需要对wip进行递归，这是处理文件
     completeWork(node);
     if (node.sibling) {
@@ -144,6 +126,7 @@ function completeUnitWork(fiber: FiberNode) {
 export function commitRoot(fiberRoot: FiberRootNode) {
   //fiberRoot.finishWork 为 render阶段的wip
   const finishedWork = fiberRoot.finishedWork;
+  console.log(finishedWork);
   if (finishedWork == null) {
     return;
   }
@@ -163,9 +146,9 @@ export function commitRoot(fiberRoot: FiberRootNode) {
   const isHasSubFlags = finishedWork.subtreeFlags !== NoFlags;
   const isHasFlags = finishedWork.flags !== NoFlags;
 
-  if (isHasFlags && isHasFlags) {
+  if (isHasFlags || isHasSubFlags) {
     //开启commit的三个阶段
-
+    console.log("进入commit")
     //第一阶段
     beforeMutationCommit();
     commitMutationEffects(finishedWork);

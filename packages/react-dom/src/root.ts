@@ -3,7 +3,6 @@ import { createContainer, updateContainer } from "react-reconciler/src/fiberReco
 import { renderRoot } from "react-reconciler/src/workLoop";
 import { ReactElementType } from "shared/ReactElementTypes";
 export const createRoot = (container: Container) => {
-  console.log(container,"createRoot")
   const root = createContainer(container);
   return {
     render(element: ReactElementType) {

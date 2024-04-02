@@ -8,11 +8,12 @@ let nextEffect: FiberNode | null = null;
 
 export const beforeMutationCommit = () => {};
 
-
-
 export const commitMutationEffects = (finishedWork: FiberNode) => {
   nextEffect = finishedWork;
+
+  //DFS遍历，寻找所有的突变点，和先递后归原理一样
   while (nextEffect !== null) {
+    let isSibling = false;
     //找根节点,由于冒泡flags分subtreeFlags和自己的flags
     if (
       nextEffect.child !== null &&
@@ -21,20 +22,27 @@ export const commitMutationEffects = (finishedWork: FiberNode) => {
       nextEffect = nextEffect.child;
     } else {
       //找到了根发生突变的节点,由于可能是child或者sibling的flag，因此一并处理
-      while (nextEffect != null) {
+      //从下到上依次将子statenode绑定给父statenode
+      // TODO: 推到根节点退出，hostRoot目前不处理，因为没有
+      while (nextEffect != null && !isSibling && nextEffect.tag != HostRoot) {
         commitMutationEffectsOnFiber(nextEffect);
         if (nextEffect.sibling != null) {
           nextEffect = nextEffect.sibling;
+          isSibling = true;
+          console.log("sibling")
         } else {
           nextEffect = nextEffect.return;
         }
       }
+      if (nextEffect != null && nextEffect.tag == HostRoot) {
+        nextEffect = null;
+      }
+      
     }
   }
 };
 
 const commitMutationEffectsOnFiber = (finishedFiber: FiberNode) => {
-  const flags = finishedFiber.flags;
   //根据Type进行不同的flags处理,相当于流水线式处理
   if ((finishedFiber.flags & Placement) != NoFlags) {
     handlePlacementFlag(finishedFiber);
@@ -69,6 +77,7 @@ const getHostParent = (fiber: FiberNode) => {
     parent = parent.return;
   }
   if (__DEV__) {
+    console.error(fiber);
     console.error("Commit 未找到parentHost");
   }
   return null;
@@ -86,10 +95,10 @@ const appendPlacementNodeInContainer = (
     return;
   }
   const child = finishedFiber.child;
-  if (child!=null){
+  if (child != null) {
     appendPlacementNodeInContainer(child, parent);
     let sibling = child.sibling;
-    while (sibling !== null){
+    while (sibling !== null) {
       appendPlacementNodeInContainer(sibling, parent);
       sibling = sibling.sibling;
     }

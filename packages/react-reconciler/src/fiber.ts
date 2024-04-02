@@ -1,8 +1,8 @@
 //定义fiber结构
 
-import { ElementType, Key, Props, Ref } from "shared/ReactElementTypes";
+import { ElementType, Key, Props, ReactElementType, Ref } from "shared/ReactElementTypes";
 import { Flags, NoFlags } from "./fiberFlags";
-import { FiberTag } from "./fiberTag";
+import { FiberTag, FunctionComponent, HostComponent } from "./fiberTag";
 
 export class FiberNode {
   // 对于 FunctionComponent，指函数本身()=>{}这种,对于ClassComponent，指class，对于HostComponent，指DOM节点tagName
@@ -78,7 +78,11 @@ export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
   let wip = current.alternate;
   if (wip == null) {
     wip = new FiberNode(current.tag, pendingProps, current.key);
-    // wip.flags = null
+    wip.stateNode = current.stateNode;
+
+    //初始化绑定
+    wip.alternate = current;
+    current.alternate = wip;
   } else {
     //update 初始化一下wip
     wip.pendingProps = pendingProps;
@@ -93,9 +97,27 @@ export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
   wip.memorizedProps = current.memorizedProps;
   wip.child = current.child;
   wip.index = current.index;
+  wip.updateQueue = current.updateQueue;
 
-  //初始化后，重新绑定，上次的alternate被废除
-  wip.alternate = current;
-  current.alternate = wip;
   return wip;
 }
+
+export const createFiberWithReactElement = (
+  reactElement: ReactElementType,
+): FiberNode => {
+  const { type, props, key, ref } = reactElement;
+  const fiber = new FiberNode(HostComponent, props, key);
+  if (typeof type === "string") {
+    fiber.tag = HostComponent;
+  } else if (typeof type === "function") {
+    fiber.tag = FunctionComponent;
+  } else {
+    if (__DEV__) {
+      console.error("未知定义的type类型", reactElement);
+    }
+  }
+  fiber.type = type;
+  fiber.key = key;
+  fiber.ref = ref;
+  return fiber;
+};

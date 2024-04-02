@@ -1,5 +1,5 @@
 import { jsxDEV } from "./src/jsx";
-import {createFiberWithReactElement} from "react-reconciler/src/workLoop"
+import {createFiberWithReactElement} from "react-reconciler/src/fiber"
 import reactReconciler from "react-reconciler"
 //打包后成为react包，导出createReactElement 即 React.createReactElement ,
 //babel 会吧jsx 转换 例如<div>aaa</div> 为React.createReactElement("div",{},"aaa")

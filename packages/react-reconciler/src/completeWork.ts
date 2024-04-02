@@ -12,6 +12,7 @@ import {
   Instance,
   appendInitialChild,
   createInstance,
+  createTextInstance,
 } from "hostConfig";
 
 //completeWork的设计理念请参考https://kasong.gitee.io/just-react/process/completeWork.html
@@ -25,15 +26,17 @@ export const completeWork = (wip: FiberNode) => {
     case FunctionComponent:
     case ClassComponent:
     case HostText:
-    case HostRoot:
+      // Host Text 绝对的最底部，不存在child，不需要appendAllChildren来
+      // 将节点冒泡
       if (current != null && wip.stateNode != null) {
         //走 update阶段
-      } else {
-        const instance = createInstance(wip.type, newProps);
-
-        appendAllChildren(instance, wip);
+      }else{
+        const instance = createTextInstance(newProps.content);
         wip.stateNode = instance;
       }
+      bubbleProperties(wip);
+      return;
+    case HostRoot:
       bubbleProperties(wip);
       return;
     case HostComponent:
@@ -65,16 +68,17 @@ export const completeWork = (wip: FiberNode) => {
 };
 
 const bubbleProperties = (wip: FiberNode) => {
-  let child = wip.child;
+  let bubbleNode = wip.child;
   let subTreeFlags = NoFlags;
 
-  while (child != null) {
-    subTreeFlags |= child.flags;
-    subTreeFlags |= child.subtreeFlags;
+  while (bubbleNode != null) {
+    //子孙全部冒泡并全部绑定
+    subTreeFlags |= bubbleNode.flags;
+    subTreeFlags |= bubbleNode.subtreeFlags;
 
-    child.return = wip;
+    bubbleNode.return = wip;
     //子孙节点的flags全部冒泡
-    child = child.sibling;
+    bubbleNode = bubbleNode.sibling;
   }
   wip.subtreeFlags |= subTreeFlags;
 };

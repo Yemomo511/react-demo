@@ -5,6 +5,7 @@ import {
   FunctionComponent,
   HostComponent,
   HostRoot,
+  HostText,
 } from "./fiberTag";
 import { UpdateQueue, processUpdateQueue } from "./updateQueue";
 import { mountReconcilerChild, updateReconcilerChild } from "./childFiber";
@@ -12,11 +13,11 @@ import { mountReconcilerChild, updateReconcilerChild } from "./childFiber";
 
 //begin的所有阶段请参考https://kasong.gitee.io/just-react/process/beginWork.html#effecttag
 export const beginWork = (wip: FiberNode) => {
-   //最后要返回子节点
+  //最后要返回子节点
   //初始化等
   //1.判断是否可以复用，待实现
-
   //2.根据tag区分要如何处理
+  console.log("begin",wip)
   switch (wip.tag) {
     case FunctionComponent:
       return updateClassComponent(wip);
@@ -29,7 +30,9 @@ export const beginWork = (wip: FiberNode) => {
 
     case HostComponent:
       return updateHostComponent(wip);
-
+    case HostText:
+      //到底部了，准备commit往上走
+      return null
     default:
       if (__DEV__) {
         console.error("beginWork: 没有与之匹配的tag");
@@ -37,7 +40,6 @@ export const beginWork = (wip: FiberNode) => {
       break;
   }
 
- 
   return null;
 };
 /**
@@ -59,6 +61,7 @@ export function updateHostRoot(wip: FiberNode) {
   const memorizeState = wip.memorizedState;
   //每一个更新都涉及到Element的更新
   const update = wip.updateQueue as UpdateQueue<Element>;
+  console.log("update", update);
   const pending = update.share.pending;
   update.share.pending = null;
   const { memorized: updateState } = processUpdateQueue(memorizeState, pending);
@@ -66,10 +69,10 @@ export function updateHostRoot(wip: FiberNode) {
 
   //获取下一个Element，准备转化为Fiber
   const nextChild = wip.memorizedState;
+
   reconcilerChildren(wip, nextChild);
 
   //准备更新
-  console.log(wip.child)
   return wip.child;
 }
 
@@ -82,8 +85,12 @@ export function updateHostComponent(wip: FiberNode) {
   return wip.child;
 }
 
+
 //构建child 子fiber节点
-export function reconcilerChildren(wip: FiberNode, children: ReactElementType) {
+export function reconcilerChildren(
+  wip: FiberNode,
+  children: ReactElementType | string | number,
+) {
   const current = wip.alternate;
   //把ReactElement转化为Fiber并绑定到wip上
   if (current != null) {
