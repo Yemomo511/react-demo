@@ -12,9 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "html-webpack-plugin": "^5.6.0",
-    "react": "1.0.0",
-    "ts-loader": "^9.5.1",
-    "react-dom": "1.0.0"
+    "ts-loader": "^9.5.1"
   },
   "devDependencies": {
     "webpack": "^5.91.0",

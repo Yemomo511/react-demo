@@ -22,7 +22,7 @@
         },
         "jsx": "react",
     },
-    "include": [ "**/*.ts"],
+    "include": [ "**/*.ts", "demo/vite/index.tsx"],
     "exclude": ["demo"]
     
 }
