@@ -8,7 +8,7 @@ import {
 } from "./updateQueue";
 import { Action } from "shared/ReactElementTypes";
 import { ScheduleUpdateOnFiber } from "./workLoop";
-import { __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED } from "react";
+import internals from "shared/intervals";
 
 interface Hook {
   memoizedState: any;
@@ -18,7 +18,8 @@ interface Hook {
 
 let currentlyRenderingFiber: FiberNode | null = null;
 let workInProgressHook: Hook | null = null;
-const currentDispatcher = __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.currentDispatcher;
+console.log(internals)
+const currentDispatcher = internals.currentDispatcher
 
 //begin阶段处理
 export const renderWithHooks = (wip: FiberNode) => {

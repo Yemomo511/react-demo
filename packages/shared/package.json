@@ -4,8 +4,5 @@
   "description": "公用api",
   "keywords": [],
   "author": "",
-  "dependencies": {
-    "react":"workspace:*"
-  },
   "license": "ISC"
 }

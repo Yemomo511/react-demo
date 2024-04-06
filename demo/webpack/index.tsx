@@ -1,10 +1,8 @@
-import React from "react";
-import ReactDOM from "react-dom"
+import React, { useState } from "react";
+import ReactDOM from "react-dom";
 // const ba =  (<div>aaa</div>)
-const jsx = (
-  <p>
-    <div>bbb</div>
-    <div>aaa</div>
-  </p>
-);
-ReactDOM.createRoot(document.getElementById("app")).render(jsx);
+const App = () => {
+  const [state, setState] = useState(0);
+  return <div>{state}</div>;
+};
+ReactDOM.createRoot(document.getElementById("app")).render(<App />);
