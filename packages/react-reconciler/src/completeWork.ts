@@ -24,13 +24,15 @@ export const completeWork = (wip: FiberNode) => {
   const current = wip.alternate;
   switch (wip.tag) {
     case FunctionComponent:
+      bubbleProperties(wip);
+      return;
     case ClassComponent:
     case HostText:
       // Host Text 绝对的最底部，不存在child，不需要appendAllChildren来
       // 将节点冒泡
       if (current != null && wip.stateNode != null) {
         //走 update阶段
-      }else{
+      } else {
         const instance = createTextInstance(newProps.content);
         wip.stateNode = instance;
       }

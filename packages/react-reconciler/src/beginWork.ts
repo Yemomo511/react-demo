@@ -9,6 +9,7 @@ import {
 } from "./fiberTag";
 import { UpdateQueue, processUpdateQueue } from "./updateQueue";
 import { mountReconcilerChild, updateReconcilerChild } from "./childFiber";
+import { renderWithHooks } from "./fiberHook";
 //Diff算法会比较ReactElement来构造本次的fiber，并打上flag，具体的应该在completework执行
 
 //begin的所有阶段请参考https://kasong.gitee.io/just-react/process/beginWork.html#effecttag
@@ -17,13 +18,13 @@ export const beginWork = (wip: FiberNode) => {
   //初始化等
   //1.判断是否可以复用，待实现
   //2.根据tag区分要如何处理
-  console.log("begin",wip)
+  console.log("begin", wip);
   switch (wip.tag) {
     case FunctionComponent:
-      return updateClassComponent(wip);
+      return updateFunctionComponent(wip);
 
     case ClassComponent:
-      return updateFunctionComponent(wip);
+      return updateClassComponent(wip);
 
     case HostRoot:
       return updateHostRoot(wip);
@@ -32,7 +33,7 @@ export const beginWork = (wip: FiberNode) => {
       return updateHostComponent(wip);
     case HostText:
       //到底部了，准备commit往上走
-      return null
+      return null;
     default:
       if (__DEV__) {
         console.error("beginWork: 没有与之匹配的tag");
@@ -48,15 +49,18 @@ export const beginWork = (wip: FiberNode) => {
  * 然而，HostComponent是代表真实DOM元素的Fiber节点，它们不具有自己的状态。
  * 因此，HostComponent节点没有updateQueue，也就不需要处理updateQueue
  */
-export function updateFunctionComponent(wip: FiberNode) {
+
+function updateFunctionComponent(wip: FiberNode) {
+  const children = renderWithHooks(wip);
+  reconcilerChildren(wip, children);
+  return wip.child;
+}
+
+function updateClassComponent(wip: FiberNode) {
   return null;
 }
 
-export function updateClassComponent(wip: FiberNode) {
-  return null;
-}
-
-export function updateHostRoot(wip: FiberNode) {
+function updateHostRoot(wip: FiberNode) {
   //采用reducer策略
   const memorizeState = wip.memorizedState;
   //每一个更新都涉及到Element的更新
@@ -76,7 +80,7 @@ export function updateHostRoot(wip: FiberNode) {
   return wip.child;
 }
 
-export function updateHostComponent(wip: FiberNode) {
+function updateHostComponent(wip: FiberNode) {
   //区分好！！！别弄混
   //wip.child 是子fiber 他的子ReactElement在props上面的child , jsx转化的时候就这么处理
   const nextProps = wip.pendingProps;
@@ -85,9 +89,8 @@ export function updateHostComponent(wip: FiberNode) {
   return wip.child;
 }
 
-
 //构建child 子fiber节点
-export function reconcilerChildren(
+function reconcilerChildren(
   wip: FiberNode,
   children: ReactElementType | string | number,
 ) {

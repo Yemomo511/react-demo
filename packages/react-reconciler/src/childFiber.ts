@@ -13,7 +13,9 @@ import { isArray } from "lodash";
 export function ChildReconciler(shouldTrackEffects: boolean) {
   //闭包策略
 
-  //目前 child可能的type ReactElement    string | number
+  //目前 child可能的type ReactElement    string | number | function
+  //ps 对于函数式组件 ，type为()=>{}，child需要通过运行type才能获取，jsx规定所致
+  //因此创造fiber时没有child，需要创造functionComponent时会运行type获取child
   //渲染组件
   function reconcilerSingleElement(
     returnFiber: FiberNode,
@@ -49,6 +51,10 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
     childArray: Array<any>,
   ) {
     //TODO:  child有可能多种类型,这里也需要进行判断对不同的child进行处理
+    //例如
+    /**
+     * <div>aaa<span>bbb</span></div> aaa为String类型，<span></span>为ElementType
+     */
     const fiber = createFiberWithReactElement(childArray[0]);
     let siblingFiber = fiber;
     fiber.return = returnFiber;

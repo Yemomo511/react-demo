@@ -4,7 +4,8 @@
     "jsx": "react",
     "paths": {
       "react": ["./react"],
-      "react-dom": ["./react-dom"]
+      "react-dom": ["./react-dom"],
+      "react/hostConfig": ["./react-dom/src/hostConfig"]
     }
   },
   "include": ["."]
