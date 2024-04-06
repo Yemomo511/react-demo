@@ -1,6 +1,7 @@
 //涉及更新列表,参考https://kasong.gitee.io/just-react/state/update.html#updatequeue
 import { Action } from "shared/ReactElementTypes";
 import { Update } from "./fiberFlags";
+import { Dispatch } from "react/src/currentDispatcher";
 
 export interface Update<State> {
   action: Action<State>;
@@ -11,6 +12,7 @@ export interface UpdateQueue<State> {
     //pending给个头就行
     pending: Update<State> | null;
   };
+  dispatch: Dispatch<State> | null;
 }
 
 export function createUpdate<State>(action: Action<State>): Update<State> {
@@ -24,6 +26,7 @@ export function createUpdateQueue<State>() {
     share: {
       pending: null,
     },
+    dispatch: null,
   } as UpdateQueue<State>;
 }
 

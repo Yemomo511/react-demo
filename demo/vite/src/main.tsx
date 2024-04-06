@@ -1,18 +1,9 @@
-import React from "react";
-export const Maintsx = () => {
-  return (
-    <div>
-      <p>aaa</p>
-      <p>ccc</p>
-    </div>
-  );
-};
-
+import React, { useState } from "react";
 function App() {
+  const [state,setState] = useState(6)
   return (
     <div>
-      <p>maintsx</p>
-      <Maintsx></Maintsx>
+      <p>{state}</p>
     </div>
   );
 }

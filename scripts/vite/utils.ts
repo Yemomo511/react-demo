@@ -8,14 +8,14 @@ const packagePath = path.resolve(__dirname, "../../packages");
 const distPath = path.resolve(__dirname, "../../dist/node_modules");
 
 //获取输出基础路径
-export function getPackagePathName(pak, isDist = false) {
+export function getPackagePathName(pak: string, isDist = false) {
   if (isDist) {
     return `${distPath}/${pak}`;
   } else {
     return `${packagePath}/${pak}`;
   }
 }
-export function getPackageJson(pck) {
+export function getPackageJson(pck: string) {
   const bathUrl = getPackagePathName(pck);
   const jsonUrl = `${bathUrl}/package.json`;
   const file = fs.readFileSync(jsonUrl, {

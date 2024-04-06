@@ -17,7 +17,7 @@ export default defineConfig(() => {
       alias: [
         {
           find: "react",
-          replacement: getPackagePathName("react",true),
+          replacement: getPackagePathName("react"),
         },
         {
           find: "react-dom",
