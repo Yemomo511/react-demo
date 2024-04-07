@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 function App() {
-  const [state,setState] = useState(6)
+  const state = 6
   return (
     <div>
-      <p>{state}</p>
+      {state}
     </div>
   );
 }
