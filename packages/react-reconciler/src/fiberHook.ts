@@ -148,6 +148,8 @@ const updateWorkInProgressHook = () => {
     const currentFiber = currentlyRenderingFiber?.alternate;
     if (currentFiber != null) {
       //自己的渲染的没有，触发dispatcher是给currentFiber的hook添加东西
+      //@ts-ignore
+      currentlyRenderingFiber.memorizedState = currentFiber.memorizedState;
       nextCurrentHook = currentFiber.memorizedState;
     } else {
       nextCurrentHook = null;
