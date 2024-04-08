@@ -12,12 +12,12 @@ const config = [
     output: [
       {
         file: `${buildBath}/index.js`,
-        name: "index.js",
+        name: "ReactDOM",
         format: "umd",
       },
       {
         file: `${buildBath}/client.js`,
-        name: "client.js",
+        name: "client",
         format: "umd",
       },
     ],
@@ -46,6 +46,19 @@ const config = [
         },
       }),
     ],
+  },
+  //react-test-utils //测试模块
+  {
+    input: `${devBath}/test-utils.ts`,
+    output: [
+      {
+        file: `${buildBath}/test-utils.js`,
+        name: "testUtils",
+        format: "umd",
+      },
+    ],
+    external: ["react-dom", "react"],
+    plugins: [...getCommonPlugin()],
   },
 ];
 

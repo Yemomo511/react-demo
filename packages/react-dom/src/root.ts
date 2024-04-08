@@ -7,7 +7,7 @@ export const createRoot = (container: Container) => {
   return {
     render(element: ReactElementType) {
       //触发更新
-      updateContainer(element, root);
+      return updateContainer(element, root);
     },
   };
 };

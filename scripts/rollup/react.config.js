@@ -51,13 +51,13 @@ export default [
       //jsx-runtime
       {
         file: `${outputBath}/jsx-runtime.js`,
-        name: "jsx-runtime.js",
+        name: "jsx-runtime",
         format: "umd",
       },
       //dev-runtime
       {
         file: `${outputBath}/jsx-dev-runtime.js`,
-        name: "jsx-dev-runtime.js",
+        name: "jsx-dev-runtime",
         format: "umd",
       },
     ],

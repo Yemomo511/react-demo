@@ -21,6 +21,18 @@ let workInProgressHook: Hook | null = null;
 console.log(internals)
 const currentDispatcher = internals.currentDispatcher
 
+//hook的调度机制 https://react.iamkasong.com/hooks/prepare.html
+/**
+ * 简单来说就useState和dispatch(setState)两个使用时刻，我们将useState称为声明阶段，dispatch称为调度阶段
+ * 声明阶段:
+ *  mount: 根据代码从上到下创建hook并使用next链接起来，同时赋予初始initState，并返回，所有hook均在
+ *         Fiber.memorizeState上面
+ *  update: 根据调度发生在hook结构体上的update更新initState，并返回更新后的updateState
+ * 调度阶段:
+ *  给hook结构体上的updateQueue添加新的update，启动再次渲染，在新的声明阶段会计算出对应的update并重新赋值。同时
+ *  打上对应的flags
+ */
+
 //begin阶段处理
 export const renderWithHooks = (wip: FiberNode) => {
   //hook 处理
@@ -31,10 +43,10 @@ export const renderWithHooks = (wip: FiberNode) => {
   const current = wip.alternate;
 
   if (current != null) {
-    //current可以帮助是否有滞留更新，并合并到当前wip上
+    //绑定好updateHook执行逻辑
     //TODO: update处理
   } else {
-    //在运行函数前，设置当前的hook,函数会运行这些玩意
+    //绑定好对应的mountHook执行逻辑
     currentDispatcher.current = HookDispatcherOnMount;
   }
 
@@ -49,6 +61,7 @@ export const renderWithHooks = (wip: FiberNode) => {
   return children;
 };
 
+//声明阶段
 const mountState = <State>(
   initState: State | (() => State),
 ): [State, Dispatch<State>] => {
@@ -70,6 +83,7 @@ const mountState = <State>(
   return [memoizedState, dispatch];
 };
 
+//调度阶段
 function dispatchSetState<State>(
   fiber: FiberNode,
   updateQueue: UpdateQueue<State>,
@@ -80,6 +94,7 @@ function dispatchSetState<State>(
   ScheduleUpdateOnFiber(fiber);
 }
 
+//mount hook执行逻辑
 const HookDispatcherOnMount: Dispatcher = {
   useState: mountState,
 };

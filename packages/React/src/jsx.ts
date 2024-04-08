@@ -28,7 +28,11 @@ export const ReactElement = function (
 //https://babeljs.io/repl#?browsers=defaults%2C%20not%20ie%2011%2C%20not%20ie_mob%2011&build=&builtIns=false&corejs=3.21&spec=false&loose=false&code_lz=DwEwlgbgBA1gpgTwLwCICGGVRGgLm1AI0KwHsA7AYQBswBjGVAbwzQF8UA-VjYAenAROQA&debug=false&forceAllTransforms=false&modules=false&shippedProposals=false&circleciRepo=&evaluate=false&fileSize=false&timeTravel=false&sourceType=module&lineWrap=true&presets=env%2Creact%2Cstage-2&prettier=false&targets=&version=7.24.3&externalPlugins=&assumptions=%7B%7D
 
 //jsx转换为ReactElement
-export const jsxPro = function (type: ElementType, config: any, ...children: any) {
+export const jsxPro = function (
+  type: ElementType,
+  config: any,
+  ...children: any
+) {
   const props: Props = {};
   let ref: Ref = null;
   let key: Key = null;
@@ -70,7 +74,7 @@ export const jsxPro = function (type: ElementType, config: any, ...children: any
 export const jsxDEV = (type: ElementType, config: any) => {
   let key: Key = null;
   let ref: Ref = null;
-  const props:Props = {};
+  const props: Props = {};
 
   for (const prop in config) {
     const value = config[prop];
@@ -89,8 +93,16 @@ export const jsxDEV = (type: ElementType, config: any) => {
       props[prop] = value;
     }
   }
-  return ReactElement(type,props,ref,key)
+  return ReactElement(type, props, ref, key);
 };
-export const jsx = jsxDEV
+
+export const isValidReactElement = (object: any) => {
+  return (
+    typeof object === "object" &&
+    object !== null &&
+    object.$$typeof === REACT_ELEMENT_TYPE
+  );
+};
+export const jsx = jsxDEV;
 
 export const jsxs = jsxDEV;
