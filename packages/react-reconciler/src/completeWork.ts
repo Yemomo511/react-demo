@@ -1,5 +1,5 @@
 import { FiberNode } from "./fiber";
-import { NoFlags } from "./fiberFlags";
+import { NoFlags, Update } from "./fiberFlags";
 import {
   ClassComponent,
   FunctionComponent,
@@ -15,6 +15,11 @@ import {
   createTextInstance,
 } from "hostConfig";
 
+const markUpdate = (fiber: FiberNode) => {
+  fiber.flags |= Update;
+  console.log("标记更新", fiber);
+};
+
 //completeWork的设计理念请参考https://kasong.gitee.io/just-react/process/completeWork.html
 
 //completeWork需要完成
@@ -29,9 +34,15 @@ export const completeWork = (wip: FiberNode) => {
     case ClassComponent:
     case HostText:
       // Host Text 绝对的最底部，不存在child，不需要appendAllChildren来
+      // 在最底部，不大上Deletion标签，更改为Update标签
       // 将节点冒泡
       if (current != null && wip.stateNode != null) {
         //走 update阶段
+        const oldText = current.memorizedProps.content;
+        const newText = newProps.content;
+        if (oldText != newText) {
+          markUpdate(wip);
+        }
       } else {
         const instance = createTextInstance(newProps.content);
         wip.stateNode = instance;

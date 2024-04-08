@@ -71,6 +71,7 @@ export const renderRoot = (fiberRoot: FiberRootNode) => {
   fiberRoot.finishedWork = finishedWork;
 
   //commit阶段
+  console.log(finishedWork);
   commitRoot(fiberRoot);
 };
 
@@ -90,7 +91,7 @@ export function performUnitOfWork(fiber: FiberNode) {
   //next 会一直往下找 直到为null ，然后网上弹，如果有sibling，workInprogress为子节点，又走递归
   //设计思想：1.先一直往下走
   const next = beginWork(fiber);
-  //Q:为什么要这样设计？
+  //diff完成，放入memorizedProps，之后找他要
   fiber.memorizedProps = fiber.pendingProps;
 
   if (next == null) {
@@ -126,7 +127,7 @@ function completeUnitWork(fiber: FiberNode) {
 export function commitRoot(fiberRoot: FiberRootNode) {
   //fiberRoot.finishWork 为 render阶段的wip
   const finishedWork = fiberRoot.finishedWork;
-  console.log(finishedWork);
+
   if (finishedWork == null) {
     return;
   }
@@ -152,10 +153,12 @@ export function commitRoot(fiberRoot: FiberRootNode) {
     //第一阶段
     beforeMutationCommit();
     commitMutationEffects(finishedWork);
+    fiberRoot.current = finishedWork;
   } else {
     //layout,切换到wip
     fiberRoot.current = finishedWork;
   }
+ 
 }
 
 //https://react.iamkasong.com/renderer/beforeMutation.html#%E6%A6%82%E8%A7%88

@@ -1,16 +1,23 @@
 //reconcilerChildren的工厂，毕竟逻辑相同，而且构建子fiber有区别
 
-import { ReactElementType } from "shared/ReactElementTypes";
-import { FiberNode } from "./fiber";
+import { Props, ReactElementType } from "shared/ReactElementTypes";
+import { FiberNode, createWorkInProgress } from "./fiber";
 import { createFiberWithReactElement } from "./fiber";
 import { REACT_ELEMENT_TYPE } from "shared/ReactSymbol";
-import { Placement } from "./fiberFlags";
+import { Deletion, Placement } from "./fiberFlags";
 import { HostText } from "./fiberTag";
 import { isArray } from "lodash";
 
 //shouldTrackEffects会决定是update还是mount
-//TODO: 根据current进行复用渲染，可以使用diff算法
 export function ChildReconciler(shouldTrackEffects: boolean) {
+  function deleteChild(fiber: FiberNode, childToDelete: FiberNode) {
+    fiber.flags |= Deletion;
+    if (fiber.deletion != null) {
+      fiber.deletion.push(childToDelete);
+    } else {
+      fiber.deletion = [childToDelete];
+    }
+  }
   //闭包策略
 
   //目前 child可能的type ReactElement    string | number | function
@@ -22,9 +29,32 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
     currentFirstChild: FiberNode | null,
     element: ReactElementType,
   ) {
+    if (element.$$typeof != REACT_ELEMENT_TYPE) {
+      if (__DEV__) {
+        console.error("非本地ReactElement对象, 请不要污染使用", element);
+      }
+    }
+    if (currentFirstChild != null) {
+      //更新逻辑
+      //判断是否可复用
+
+      if (
+        currentFirstChild.type == element.type &&
+        currentFirstChild.key === element.key &&
+        element.$$typeof != REACT_ELEMENT_TYPE
+      ) {
+        //复用,只更改props
+        const child = useFiber(currentFirstChild, element.props);
+        child.return = returnFiber; //绑定
+        return child;
+      } else {
+        //标注删除标记
+        deleteChild(returnFiber, currentFirstChild);
+      }
+    }
     const fiber = createFiberWithReactElement(element);
     fiber.return = returnFiber; //绑定好
-    return fiber;
+    return placeSingleChild(fiber);
   }
 
   //渲染纯文字
@@ -33,6 +63,14 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
     currentFirstChild: FiberNode | null,
     textContent: string | number,
   ) {
+    if (currentFirstChild) {
+      //textNode直接复用
+      const child = useFiber(currentFirstChild, {
+        content: textContent,
+      });
+      child.return = returnFiber;
+      return child;
+    }
     const fiber = new FiberNode(
       HostText,
       {
@@ -41,16 +79,16 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
       null,
     );
     fiber.return = returnFiber;
-    return fiber;
+    return placeSingleChild(fiber);
   }
 
-  //渲染多child
+  //渲染多child，todo Update实现
   function reconcilerMultiChildren(
     returnFiber: FiberNode,
     currentFiber: FiberNode | null,
-    childArray: Array<any>,
+    childArray: Array<ReactElementType>,
   ) {
-    //TODO:  child有可能多种类型,这里也需要进行判断对不同的child进行处理
+    //TODO:  child有可能多种类型,这里也需要进行判断对不同的child进行处理, 以及更新逻辑
     //例如
     /**
      * <div>aaa<span>bbb</span></div> aaa为String类型，<span></span>为ElementType
@@ -92,8 +130,10 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
       Array.isArray(childElement) == false
     ) {
       if (childElement.$$typeof == REACT_ELEMENT_TYPE) {
-        return placeSingleChild(
-          reconcilerSingleElement(workInProgress, currentFiber, childElement),
+        return reconcilerSingleElement(
+          workInProgress,
+          currentFiber,
+          childElement,
         );
       } else {
         if (__DEV__) {
@@ -104,8 +144,10 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
     }
 
     if (typeof childElement == "string" || typeof childElement == "number") {
-      return placeSingleChild(
-        reconcilerSingleTextNode(workInProgress, currentFiber, childElement),
+      return reconcilerSingleTextNode(
+        workInProgress,
+        currentFiber,
+        childElement,
       );
     }
 
@@ -114,7 +156,11 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
         return null;
       }
 
-      return reconcilerMultiChildren(workInProgress, currentFiber, childElement)
+      return reconcilerMultiChildren(
+        workInProgress,
+        currentFiber,
+        childElement,
+      );
     }
 
     if (__DEV__) {
@@ -122,6 +168,16 @@ export function ChildReconciler(shouldTrackEffects: boolean) {
     }
     return null;
   };
+}
+
+//复用函数
+function useFiber(currentFiber: FiberNode, pendingProps: Props) {
+  const copyWip = createWorkInProgress(currentFiber, pendingProps);
+  //sibling解绑
+  copyWip.sibling = null;
+  //index解绑
+  copyWip.index = 0;
+  return copyWip;
 }
 
 export const mountReconcilerChild = ChildReconciler(false);

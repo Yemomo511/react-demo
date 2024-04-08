@@ -32,6 +32,8 @@ export class FiberNode {
 
   //优先级相关,后期标注为Lane
   lanes: any;
+  //要删除的Fiber
+  deletion: FiberNode[] | null;
 
   //构造时有type props key
   constructor(tag: FiberTag, pendingProps: Props, key: Key) {
@@ -59,6 +61,7 @@ export class FiberNode {
     this.flags = NoFlags;
     this.subtreeFlags = NoFlags;
     this.lanes = null;
+    this.deletion = null;
   }
 }
 
@@ -95,10 +98,11 @@ export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
   wip.stateNode = current.stateNode;
   wip.ref = current.ref;
   wip.memorizedProps = current.memorizedProps;
+  wip.memorizedState = current.memorizedState
   wip.child = current.child;
   wip.index = current.index;
   wip.updateQueue = current.updateQueue;
-
+  console.log("wip", wip);
   return wip;
 }
 

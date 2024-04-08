@@ -23,7 +23,7 @@ describe("ReactElement-test", () => {
 
     originalSymbol = global.Symbol;
 
-    const ReactDefault = require("react");
+    const ReactDefault: any = require("react");
     React = ReactDefault.default;
     ReactDOM = require("react-dom");
     ReactTestUtils = require("react-dom/test-utils");

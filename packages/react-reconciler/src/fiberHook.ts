@@ -5,6 +5,7 @@ import {
   createUpdate,
   createUpdateQueue,
   enqueueUpdate,
+  processUpdateQueue,
 } from "./updateQueue";
 import { Action } from "shared/ReactElementTypes";
 import { ScheduleUpdateOnFiber } from "./workLoop";
@@ -18,8 +19,9 @@ interface Hook {
 
 let currentlyRenderingFiber: FiberNode | null = null;
 let workInProgressHook: Hook | null = null;
-console.log(internals)
-const currentDispatcher = internals.currentDispatcher
+let currentHook: Hook | null = null;
+console.log(internals);
+const currentDispatcher = internals.currentDispatcher;
 
 //hook的调度机制 https://react.iamkasong.com/hooks/prepare.html
 /**
@@ -41,10 +43,10 @@ export const renderWithHooks = (wip: FiberNode) => {
   wip.memorizedState = null;
 
   const current = wip.alternate;
-
   if (current != null) {
     //绑定好updateHook执行逻辑
-    //TODO: update处理
+    //看看hook上有没有绑定的
+    currentDispatcher.current = HookDispatcherOnUpdate;
   } else {
     //绑定好对应的mountHook执行逻辑
     currentDispatcher.current = HookDispatcherOnMount;
@@ -53,9 +55,12 @@ export const renderWithHooks = (wip: FiberNode) => {
   //Function Component的type为()=>{},可以直接把props传递，会返回对应的ReactElement
   const FunctionComponent = wip.type;
   const props = wip.pendingProps;
-  console.log(currentDispatcher)
+  console.log(currentDispatcher);
   const children = FunctionComponent(props);
   //函数组件及时清理，保证hook调用是在函数式组件调用
+  //运行完毕将此函数的hook清除
+  workInProgressHook = null;
+  currentHook = null;
   currentlyRenderingFiber = null;
 
   return children;
@@ -83,6 +88,28 @@ const mountState = <State>(
   return [memoizedState, dispatch];
 };
 
+const updateState = <State>(): [State, Dispatch<State>] => {
+  //更新的触发，准备更新
+  const hook = updateWorkInProgressHook();
+  const update = hook.updateQueue as UpdateQueue<State>;
+  const pending = update.share.pending;
+  if (pending != null) {
+    //计算新的state
+    const { memorized } = processUpdateQueue(hook.memoizedState, pending);
+    hook.memoizedState = memorized;
+  }
+
+  return [hook.memoizedState, update.dispatch as Dispatch<State>];
+};
+
+//mount hook执行逻辑
+const HookDispatcherOnMount: Dispatcher = {
+  useState: mountState,
+};
+const HookDispatcherOnUpdate: Dispatcher = {
+  useState: updateState,
+};
+
 //调度阶段
 function dispatchSetState<State>(
   fiber: FiberNode,
@@ -93,11 +120,6 @@ function dispatchSetState<State>(
   enqueueUpdate(update, updateQueue);
   ScheduleUpdateOnFiber(fiber);
 }
-
-//mount hook执行逻辑
-const HookDispatcherOnMount: Dispatcher = {
-  useState: mountState,
-};
 
 //函数式组件hook的依次调用被设为next来进行连接，保证更新的顺序
 const mountWorkInProgressHook = () => {
@@ -117,5 +139,45 @@ const mountWorkInProgressHook = () => {
     workInProgressHook.next = hook;
     workInProgressHook = hook;
   }
+  return workInProgressHook;
+};
+
+const updateWorkInProgressHook = () => {
+  let nextCurrentHook: Hook | null;
+  if (currentHook == null) {
+    const currentFiber = currentlyRenderingFiber?.alternate;
+    if (currentFiber != null) {
+      //自己的渲染的没有，触发dispatcher是给currentFiber的hook添加东西
+      nextCurrentHook = currentFiber.memorizedState;
+    } else {
+      nextCurrentHook = null;
+    }
+  } else {
+    nextCurrentHook = currentHook.next;
+  }
+
+  if (nextCurrentHook == null) {
+    throw Error("组件更新时hook挂载数量不同步");
+  }
+  currentHook = nextCurrentHook;
+
+  //把旧的不断链接过来
+  const newHook: Hook = {
+    memoizedState: currentHook.memoizedState,
+    updateQueue: currentHook.updateQueue,
+    next: null,
+  };
+
+  if (workInProgressHook == null) {
+    //首次加载
+    if (currentlyRenderingFiber == null) {
+      throw Error("请在函数式组件调用hook");
+    }
+    workInProgressHook = newHook;
+  } else {
+    workInProgressHook.next = newHook;
+    workInProgressHook = newHook;
+  }
+
   return workInProgressHook;
 };

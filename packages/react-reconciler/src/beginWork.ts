@@ -99,6 +99,11 @@ function reconcilerChildren(
   if (current != null) {
     //update机制
     wip.child = updateReconcilerChild(wip, current.child, children);
+    if (wip.child != null && current.child != null) {
+      //update时链接alternate，保证后面都得知更新机制
+      wip.child.alternate = current.child;
+      current.child.alternate = wip.child;
+    }
   } else {
     // mount机制
     wip.child = mountReconcilerChild(wip, null, children);

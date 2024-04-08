@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 function App() {
-  const state = 6
+  const [state, setState] = useState(6);
+  window.setState = setState;
   return (
-    <div>
+    <div
+      onClick={() => {
+        setState(8);
+      }}
+    >
       {state}
     </div>
   );
