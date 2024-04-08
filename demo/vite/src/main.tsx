@@ -5,7 +5,9 @@ function App() {
   return (
     <div
       onClick={() => {
-        setState(8);
+        setState((state) => {
+          return state + 1;
+        });
       }}
     >
       {state}

@@ -98,6 +98,7 @@ const updateState = <State>(): [State, Dispatch<State>] => {
     const { memorized } = processUpdateQueue(hook.memoizedState, pending);
     hook.memoizedState = memorized;
   }
+  
 
   return [hook.memoizedState, update.dispatch as Dispatch<State>];
 };
@@ -149,7 +150,6 @@ const updateWorkInProgressHook = () => {
     if (currentFiber != null) {
       //自己的渲染的没有，触发dispatcher是给currentFiber的hook添加东西
       //@ts-ignore
-      currentlyRenderingFiber.memorizedState = currentFiber.memorizedState;
       nextCurrentHook = currentFiber.memorizedState;
     } else {
       nextCurrentHook = null;
@@ -175,6 +175,7 @@ const updateWorkInProgressHook = () => {
     if (currentlyRenderingFiber == null) {
       throw Error("请在函数式组件调用hook");
     }
+    currentlyRenderingFiber.memorizedState = newHook;
     workInProgressHook = newHook;
   } else {
     workInProgressHook.next = newHook;
