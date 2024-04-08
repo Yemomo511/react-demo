@@ -8,6 +8,9 @@ const config: Config = {
   roots: ["<rootDir>/packages"],
   moduleDirectories: ["dist/node_modules", ...defaults.moduleDirectories],
   testEnvironment: "jsdom",
+  transform:{
+    "^.+\\.(js|jsx|ts|tsx)$": "babel-jest",
+  },
 };
 
 export default config;

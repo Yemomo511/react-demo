@@ -1,4 +1,4 @@
-import { jsxDEV } from "./src/jsx";
+import { isValidReactElement, jsxDEV } from "./src/jsx";
 import currentDispatcher, {
   Dispatcher,
   resolveDispatcher,
@@ -22,4 +22,5 @@ export default {
   version: "0.0.0",
   __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,
   createElement: jsxDEV,
+  isValidElement: isValidReactElement
 };
