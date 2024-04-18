@@ -98,7 +98,6 @@ const updateState = <State>(): [State, Dispatch<State>] => {
     const { memorized } = processUpdateQueue(hook.memoizedState, pending);
     hook.memoizedState = memorized;
   }
-  
 
   return [hook.memoizedState, update.dispatch as Dispatch<State>];
 };
