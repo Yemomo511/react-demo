@@ -3,13 +3,14 @@
 import { FiberNode } from "react-reconciler/src/fiber";
 import { HostComponent, HostText } from "react-reconciler/src/fiberTag";
 import { Props } from "shared/ReactElementTypes";
+import { DOMElement, updateDomProps } from "./SyntheticEvent";
 
 /*
 Element is the most general base class from which all objects in a Document inherit. It only has methods and properties common to all kinds of elements. More specific classes inherit from Element.
 Element 是最通用的基类，Document 中的所有对象都继承自该基类。它只具有各种元素共有的方法和属性。更具体的类继承自 Element。
 */
 export type Container = Element;
-export type Instance = Element;
+export type Instance = Element | TextInstance;
 //Text 文本节点
 export type TextInstance = Text;
 
@@ -20,11 +21,11 @@ export const commitUpdate = (fiber: FiberNode) => {
     case HostComponent:
       const props = fiber.memorizedProps;
       stateNode = fiber.stateNode as Instance;
-      updateInstance(stateNode, props);
+      // updateDomProps(stateNode, props);
       break;
     case HostText:
       const text = fiber.memorizedProps.content;
-      stateNode = fiber.stateNode as Text;
+      stateNode = fiber.stateNode as TextInstance;
       updateText(text, stateNode);
       break;
     default:
@@ -35,16 +36,10 @@ export const commitUpdate = (fiber: FiberNode) => {
 };
 
 export const createInstance = (type: string, props: Props) => {
-  const element = document.createElement(type);
-  for (const key in props) {
-    const value = props[key];
-    //处理监听
-    if (key.startsWith("on") && typeof value === "function") {
-      element.addEventListener(key.slice(2).toLowerCase(), value);
-    }
-  }
+  const element = document.createElement(type) as unknown;
   //待处理props
-  return element;
+  updateDomProps(element as DOMElement, props);
+  return element as DOMElement;
 };
 
 export const appendInitialChild = (
@@ -67,24 +62,8 @@ export const removeChild = (
   container.removeChild(instance);
 };
 
-const updateText = (content: string, textNode: Text) => {
+const updateText = (content: string, textNode: TextInstance) => {
   textNode.textContent = content;
-};
-
-const updateInstance = (instance: Instance, props: Props) => {
-  for (const key in props) {
-    const value = props[key];
-
-    if (key.startsWith("on")) {
-      const eventName = key.slice(2).toLowerCase();
-      if (value) {
-        instance.addEventListener(eventName, value);
-      } else {
-        instance.removeEventListener(eventName, value);
-      }
-      continue;
-    }
-  }
 };
 
 export const appendChildToContainer = appendInitialChild;

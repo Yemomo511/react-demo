@@ -1,3 +1,4 @@
+import { updateDomProps } from "react-dom/src/SyntheticEvent";
 import { FiberNode } from "./fiber";
 import { NoFlags, Update } from "./fiberFlags";
 import {
@@ -61,6 +62,7 @@ export const completeWork = (wip: FiberNode) => {
        */
       if (current != null && wip.stateNode != null) {
         //update逻辑
+        updateDomProps(wip.stateNode,wip.memorizedProps)
       } else {
         //1. 构建dom 一个dom标签和其props就可以构建了，其他的暂时不用，ref也暂时不考虑
         const instance = createInstance(wip.type, newProps);

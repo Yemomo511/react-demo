@@ -161,9 +161,10 @@ const updateWorkInProgressHook = () => {
   if (nextCurrentHook == null) {
     throw Error("组件更新时hook挂载数量不同步");
   }
+
   currentHook = nextCurrentHook;
 
-  //把旧的不断链接过来
+  //把旧的不断链接过来,重构一个新对象，防止直接修改
   const newHook: Hook = {
     memoizedState: currentHook.memoizedState,
     updateQueue: currentHook.updateQueue,
